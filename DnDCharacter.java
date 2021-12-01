@@ -77,7 +77,7 @@ public class DnDCharacter {
         boolean onceSubstracted = false;
         int lowestNumber = lowest(rolls);
         for(int i = 0;i<4;i++) {
-            if(!(rolls[i]==lowestNumber && !onceSubstracted)) {
+            if(!(rolls[i]==lowestNumber) && !onceSubstracted) {
                 stat+=rolls[i];
                 onceSubstracted=true;
             }
