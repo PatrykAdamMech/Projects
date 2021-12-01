@@ -71,12 +71,16 @@ public class DnDCharacter {
         }
         return lowestNumber;
     }
-
+    //Throws out the lowest value and sums remaining ones
     int statistic(int[] rolls) {
         int stat = 0;
+        boolean onceSubstracted = false;
         int lowestNumber = lowest(rolls);
         for(int i = 0;i<4;i++) {
-            if(!(rolls[i]==lowestNumber)) stat+=rolls[i];
+            if(!(rolls[i]==lowestNumber && !onceSubstracted)) {
+                stat+=rolls[i];
+                onceSubstracted=true;
+            }
         }
         return stat;
     }
