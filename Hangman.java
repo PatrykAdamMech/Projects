@@ -1,154 +1,171 @@
-package Hangman;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Hangman {
+
     Hangman(String word) {
-        actualGame(word);
+        game(word);
     }
 
-    public void actualGame(String word) {
-        int lostLives=0;
-        ArrayList<String> guessedLetters = new ArrayList<>();
+    public void game(String word) {
+        int livesLost = 0;
+
+        ArrayList<String> wordLetters = wordIntoLetters(word);
+        LinkedList<String> unknownLetters = wordIntoUnknowns(word);
+        LinkedList<String> guessedLetters = new LinkedList<>();
+
         Scanner scanner = new Scanner(System.in);
 
-        char[] letters = word.toUpperCase().toCharArray();
+        while(true) {
 
-        ArrayList<String> revealedLetters = new ArrayList<>();
+            if(livesLost<7) {
+                showIcon(livesLost);
+                showWord(unknownLetters);
+                System.out.println("\nYour choices: \n" + guessedLetters);
+                if(winCondition(wordLetters,unknownLetters)) {
+                    System.out.println("You won!");
+                    break;
+                }
+                String player = scanner.nextLine().toUpperCase();
+                if (player.equals("0")) break;
+                System.out.println(player);
 
-        for(Character x : letters) {
-            revealedLetters.add("_");
-        }
-        System.out.println("Here's number of letters: ");
-
-        while(lostLives<=7) {
-            if(lostLives==7) {
-                System.out.println(showIcon(7));
-                System.out.println("You lost!");
-                break;
-            }
-            for(String x : revealedLetters) {
-                System.out.print(x+" ");
-            }
-            if(didWin(revealedLetters,word)) {
-                System.out.println("You won!");
-                break;
-            }
-            System.out.println();
-            String hangman = showIcon(lostLives);
-            System.out.println("\n"+hangman);
-            System.out.println("Your guesses: ");
-            System.out.println(guessedLetters);
-            System.out.println("What letter do you think is there?: ");
-            String letter = scanner.nextLine().toUpperCase();
-
-            //Given line must be a single letter
-            if(letter.length()==1) {
-                //Checking whether letter has already been typed
-                if(!guessedLetters.contains(letter)) {
-                    //Checking whether this letter is in word
-                    for (int i = 0; i < letters.length; i++) {
-                        if (letters[i] == letter.charAt(0)) {
-                            revealedLetters.set(i, letter);
+                if(player.length()==1) {
+                    if(!guessedLetters.contains(player)) {
+                        if(wordLetters.contains(player)) {
+                            unknownLetters = uncoverLetters(player,unknownLetters,wordLetters);
+                            guessedLetters.add(player);
+                        }
+                        else {
+                            System.out.println("Letter "+player+" is not in the word!");
+                            livesLost++;
+                            guessedLetters.add(player);
                         }
                     }
-                    if(!revealedLetters.contains(letter)) {
-                        System.out.println("Your guess was wrong!");
-                        guessedLetters.add(letter);
-                        lostLives++;
-                    }
                     else {
-                        System.out.println("Your guess was correct!");
-                        guessedLetters.add(letter);
+                        System.out.println("You have already given this letter!");
                     }
                 }
-                else System.out.println("You have already typed this letter!");
+                else System.out.println("You must give a SINGLE letter!");
+
+
             }
 
-            else System.out.println("Type a single letter");
+            else {
+                showIcon(livesLost);
+                showWord(unknownLetters);
+                System.out.println("\nYour choices: \n" + guessedLetters);
+                System.out.println("You lost!");
+                break;
 
+            }
         }
     }
 
-    public String showIcon(int lostLives) {
-        String show = "";
-        switch(lostLives) {
-            case 1:show = """
+
+    public LinkedList<String> uncoverLetters(String letter, LinkedList<String> unknownLetters, ArrayList<String> wordLetters) {
+        for(int i = 0;i<unknownLetters.size();i++) {
+            if(wordLetters.get(i).equals(letter.toUpperCase())) unknownLetters.set(i,letter.toUpperCase());
+        }
+        return unknownLetters;
+    }
+    public ArrayList<String> wordIntoLetters(String word) {
+        ArrayList<String> letters = new ArrayList<>();
+        for(Character x : word.toUpperCase().toCharArray()) {
+            letters.add(x.toString());
+        }
+        return letters;
+    }
+    public LinkedList<String> wordIntoUnknowns(String word) {
+        LinkedList<String> unknownLetters = new LinkedList<>();
+        for(Character x : word.toCharArray()) {
+            unknownLetters.add("_");
+        }
+        return unknownLetters;
+    }
+
+    public void showIcon(int livesLost) {
+        switch(livesLost) {
+            case 1: System.out.println("""
                     |
                     |
                     |
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 2: show = """
+            case 2: System.out.println("""
                     ====
                     |
                     |
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 3: show = """
+            case 3: System.out.println("""
                     ====
                     |  |
                     |
                     |
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 4: show = """
+            case 4: System.out.println("""
                     ====
                     |  |
                     |  O
                     |
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 5: show = """
+            case 5: System.out.println("""
                     ====
                     |  |
                     |  O
                     |  |
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 6: show = """
+            case 6: System.out.println("""
                     ====
                     |  |
                     |  O
                     | /|\\
                     |
                     |
-                    """;
+                    """);
                 break;
-            case 7: show = """
+            case 7: System.out.println("""
                     ====
                     |  |
                     |  O
                     | /|\\
                     | / \\
                     |
-                    """;
+                    """);
                 break;
             default:
-                show="";
+                System.out.println();
         }
-        return show;
     }
-    public boolean didWin(ArrayList<String> revealed, String word) {
-        boolean didWin = false;
-        String wordFromArray = "";
-        for(String x : revealed) {
-            wordFromArray+=x;
-        }
-        if(wordFromArray.equals(word.toUpperCase())) {
-            didWin = true;
-        }
 
-        return  didWin;
+    public void showWord(LinkedList<String> wordLetters) {
+        for(String x : wordLetters) System.out.print(x+" ");
     }
+
+    public boolean winCondition(ArrayList<String> wordLetters,LinkedList<String> unknownLetters) {
+        String word1="";
+        String word2="";
+        for(String x : wordLetters) {
+            word1+=x;
+        }
+        for(String x : unknownLetters) {
+            word2+=x;
+        }
+        return word1.equals(word2);
+    }
+
 }
+
